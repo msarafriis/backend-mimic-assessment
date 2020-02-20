@@ -45,8 +45,14 @@ columns, so the output looks better.
 
 import random
 import sys
+import re
 
-__author__ = "???"
+__author__ = "msarafriis"
+
+
+def ver_check():
+    if sys.version_info[0] < 3:
+        raise Exception('Python 2 is unsupported. Python 3 is required.')
 
 
 def create_mimic_dict(filename):
@@ -69,7 +75,22 @@ def create_mimic_dict(filename):
             }
     """
     # +++your code here+++
-    
+    with open(filename, 'r') as text:
+        words = re.sub("[^\w]", " ", text.read()).split()
+        found_words = {}
+        for word_index in range(0, len(words)):
+            word = words[word_index]
+            try:
+                if (word_index + 1 != len(words)):
+                    found_words[word.lower()].append(
+                        words[word_index + 1].lower())
+            except:
+                found_words[word.lower()] = []
+                if (word_index + 1 != len(words)):
+                    found_words[word.lower()].append(
+                        words[word_index + 1].lower())
+        return found_words
+
 
 def print_mimic(mimic_dict, start_word):
     """Given a previously compiled mimic_dict and start_word, prints 200 random words:
@@ -79,17 +100,30 @@ def print_mimic(mimic_dict, start_word):
         - Repeat this process 200 times
     """
     # +++your code here+++
-    pass
+    next_word = ""
+    for selection in range(0, 200):
+        word = ""
+        if selection == 0:
+            word = start_word
+        else:
+            word = next_word
+        dictionary = mimic_dict[word]
+        print("{}\n".format(word))
+        print(", ".join(dictionary))
+        next_word = dictionary[random.randrange(len(dictionary))]
+        print("\n" * 5)
 
 
 # Provided main(), calls mimic_dict() and mimic()
 def main():
+    ver_check()
     if len(sys.argv) != 2:
-        print 'usage: python mimic.py file-to-read'
+        print('usage: python mimic.py file-to-read')
         sys.exit(1)
 
     d = create_mimic_dict(sys.argv[1])
-    print_mimic(d, '')
+    d_words = [key for key in d]
+    print_mimic(d, d_words[0])
 
 
 if __name__ == '__main__':
